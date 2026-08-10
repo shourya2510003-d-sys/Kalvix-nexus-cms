@@ -1,4 +1,61 @@
 services:
+  dc-backend:
+    build: ./divine-cardinal/backend
+    restart: always
+    env_file:
+      - ./divine-cardinal/backend/.env
+    depends_on:
+      - postgres
+      - redis
+      - meilisearch
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.dc-backend.rule=(HostRegexp(`^.+\\.kalvixnexus\\.com$$`) || Host(`divinecardinal.com`)) && PathPrefix(`/api/backend`)"
+      - "traefik.http.routers.dc-backend.entrypoints=websecure"
+      - "traefik.http.routers.dc-backend.tls=true"
+      - "traefik.http.routers.dc-backend.tls.certresolver=myresolver"
+      - "traefik.http.services.dc-backend.loadbalancer.server.port=4000"
+      - "traefik.http.middlewares.dc-replace.replacepathregex.regex=^/api/backend/(.*)"
+      - "traefik.http.middlewares.dc-replace.replacepathregex.replacement=/api/$$1"
+      - "traefik.http.routers.dc-backend.middlewares=dc-replace"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '1G'
+
+  dc-frontend:
+    build: ./divine-cardinal/frontend
+    restart: always
+    env_file:
+      - ./divine-cardinal/frontend/.env.local
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - dc-backend
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.dc-frontend.rule=HostRegexp(`^.+\\.kalvixnexus\\.com$$`) || Host(`divinecardinal.com`)"
+      - "traefik.http.routers.dc-frontend.entrypoints=websecure"
+      - "traefik.http.routers.dc-frontend.tls=true"
+      - "traefik.http.routers.dc-frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.dc-frontend.tls.domains[0].main=kalvixnexus.com"
+      - "traefik.http.routers.dc-frontend.tls.domains[0].sans=*.kalvixnexus.com"
+      - "traefik.http.routers.dc-frontend.priority=10"
+      - "traefik.http.services.dc-frontend.loadbalancer.server.port=3000"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '1G'
   postgres:
     image: postgres:16
     restart: always
@@ -53,16 +110,22 @@ services:
     image: traefik:v3.5
     restart: always
     command:
+      - "--log.level=DEBUG"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge.resolvers=8.8.8.8:53,8.8.4.4:53"
       - "--certificatesresolvers.myresolver.acme.email=official@kalvixnexus.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
       - "80:80"
       - "443:443"
@@ -98,6 +161,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.backend.rule=Host(`api.kalvixnexus.com`)"
+      - "traefik.http.routers.backend.priority=20"
       - "traefik.http.routers.backend.entrypoints=web"
     deploy:
       resources:
@@ -108,6 +172,8 @@ services:
   frontend:
     build: ./frontend
     restart: always
+    env_file:
+      - ./frontend/.env.local
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_ROOT_DOMAIN=kalvixnexus.com
@@ -117,10 +183,13 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.frontend.rule=Host(`kalvixnexus.com`) || Host(`www.kalvixnexus.com`) || Host(`divine.kalvixnexus.com`) || Host(`divinecardinal.kalvixnexus.com`)"
+      - "traefik.http.routers.frontend.rule=HostRegexp(`^.+\\.kalvixnexus\\.com$$`) || Host(`kalvixnexus.com`)"
+      - "traefik.http.routers.frontend.priority=5"
       - "traefik.http.routers.frontend.entrypoints=web,websecure"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.frontend.tls.domains[0].main=kalvixnexus.com"
+      - "traefik.http.routers.frontend.tls.domains[0].sans=*.kalvixnexus.com"
     deploy:
       resources:
         limits:
@@ -133,3 +202,5 @@ networks:
 
 volumes:
   meili_data:
+
+
