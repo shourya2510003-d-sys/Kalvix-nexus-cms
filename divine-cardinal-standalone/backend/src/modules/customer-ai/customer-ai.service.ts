@@ -40,7 +40,7 @@ export class CustomerAiService {
       
       const productContext = `\nHere are some of our active products for context: \n${JSON.stringify(products)}`;
 
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       const chat = model.startChat({
         history: [
           { role: 'user', parts: [{ text: systemPrompt + productContext }] },

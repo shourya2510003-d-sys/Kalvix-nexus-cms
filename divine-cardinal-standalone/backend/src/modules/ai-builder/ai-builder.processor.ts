@@ -30,7 +30,7 @@ export class AiBuilderProcessor {
       await job.progress(30);
 
       // Layer 2: Layout Generation Engine
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-pro-latest' });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
       
       const systemPrompt = `
       You are an expert CMS Layout Generator. You output strictly structured JSON.
