@@ -14,14 +14,22 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.dc-backend.rule=(HostRegexp(`^.+\\.kalvixnexus\\.com$$`) || Host(`divinecardinal.com`)) && PathPrefix(`/api/backend`)"
+      # kalvixnexus wildcard router + Custom Domains Catch-all
+      - "traefik.http.routers.dc-backend.rule=HostRegexp(`^.+$`) && PathPrefix(`/api/backend`)"
+      - "traefik.http.routers.dc-backend.priority=1"
       - "traefik.http.routers.dc-backend.entrypoints=websecure"
       - "traefik.http.routers.dc-backend.tls=true"
       - "traefik.http.routers.dc-backend.tls.certresolver=myresolver"
+      - "traefik.http.routers.dc-backend.middlewares=dc-replace"
+      
+
+      
+      # shared service port
       - "traefik.http.services.dc-backend.loadbalancer.server.port=4000"
+      
+      # middlewares
       - "traefik.http.middlewares.dc-replace.replacepathregex.regex=^/api/backend/(.*)"
       - "traefik.http.middlewares.dc-replace.replacepathregex.replacement=/api/$$1"
-      - "traefik.http.routers.dc-backend.middlewares=dc-replace"
     deploy:
       resources:
         limits:
@@ -43,13 +51,19 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.dc-frontend.rule=HostRegexp(`^.+\\.kalvixnexus\\.com$$`) || Host(`divinecardinal.com`)"
+      
+      # kalvixnexus wildcard router + Custom Domains Catch-all
+      - "traefik.http.routers.dc-frontend.rule=HostRegexp(`^.+$`)"
       - "traefik.http.routers.dc-frontend.entrypoints=websecure"
       - "traefik.http.routers.dc-frontend.tls=true"
       - "traefik.http.routers.dc-frontend.tls.certresolver=myresolver"
       - "traefik.http.routers.dc-frontend.tls.domains[0].main=kalvixnexus.com"
       - "traefik.http.routers.dc-frontend.tls.domains[0].sans=*.kalvixnexus.com"
-      - "traefik.http.routers.dc-frontend.priority=10"
+      - "traefik.http.routers.dc-frontend.priority=1"
+      
+
+      
+      # shared service port
       - "traefik.http.services.dc-frontend.loadbalancer.server.port=3000"
     deploy:
       resources:
@@ -124,6 +138,10 @@ services:
       - "--certificatesresolvers.myresolver.acme.dnschallenge.resolvers=8.8.8.8:53,8.8.4.4:53"
       - "--certificatesresolvers.myresolver.acme.email=official@kalvixnexus.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.httpresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.httpresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.httpresolver.acme.email=official@kalvixnexus.com"
+      - "--certificatesresolvers.httpresolver.acme.storage=/letsencrypt/acme.json"
     environment:
       - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
@@ -183,7 +201,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.frontend.rule=HostRegexp(`^.+\\.kalvixnexus\\.com$$`) || Host(`kalvixnexus.com`)"
+      - "traefik.http.routers.frontend.rule=Host(`kalvixnexus.com`) || Host(`www.kalvixnexus.com`)"
       - "traefik.http.routers.frontend.priority=5"
       - "traefik.http.routers.frontend.entrypoints=web,websecure"
       - "traefik.http.routers.frontend.tls=true"

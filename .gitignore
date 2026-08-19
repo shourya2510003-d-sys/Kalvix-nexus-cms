@@ -25,3 +25,6 @@ system_monitor.log
 # Temp files
 *.bak
 *.tmp
+divine-cardinal-standalone/postgres/data/
+divine-cardinal-standalone/meili_data/
+divine-cardinal-standalone/redis/data/
