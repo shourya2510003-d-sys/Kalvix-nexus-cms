@@ -21,7 +21,7 @@ services:
       - "traefik.docker.network=app_web"
       
       # divinecardinal specific router
-      - "traefik.http.routers.dc-standalone-backend.rule=Host(`divinecardinal.com`) && PathPrefix(`/api/backend`)"
+      - "traefik.http.routers.dc-standalone-backend.rule=Host(`divinecardinal.com`) && (PathPrefix(`/api/backend`) || PathPrefix(`/uploads`))"
       - "traefik.http.routers.dc-standalone-backend.entrypoints=websecure"
       - "traefik.http.routers.dc-standalone-backend.tls=true"
       - "traefik.http.routers.dc-standalone-backend.tls.certresolver=httpresolver"
