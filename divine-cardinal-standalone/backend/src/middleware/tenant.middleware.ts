@@ -39,9 +39,16 @@ export class TenantMiddleware implements NestMiddleware {
       tenant = await this.prisma.tenant.findFirst({
         where: { slug }
       });
+      
+      // 2. If not found by slug, it might be a custom domain passed as the slug (SSR)
+      if (!tenant) {
+        tenant = await this.prisma.tenant.findFirst({
+          where: { domain: slug }
+        });
+      }
     }
 
-    // 2. If not found by slug (or slug is empty), try finding by custom domain
+    // 3. If not found by slug (or slug is empty), try finding by custom domain from Host header
     if (!tenant && req.headers.host) {
       tenant = await this.prisma.tenant.findFirst({
         where: { domain: req.headers.host.split(':')[0] }
