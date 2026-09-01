@@ -28,3 +28,7 @@ system_monitor.log
 divine-cardinal-standalone/postgres/data/
 divine-cardinal-standalone/meili_data/
 divine-cardinal-standalone/redis/data/
+divine-cardinal/postgres/data/
+divine-cardinal/meili_data/
+divine-cardinal/redis/data/
+

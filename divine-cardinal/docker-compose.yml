@@ -2,8 +2,7 @@ services:
   dc-standalone-backend:
     build: ./backend
     restart: always
-    env_file:
-      - ./backend/.env
+
     environment:
       # Override DB_HOST and others to point to standalone services
       - DATABASE_URL=postgresql://kalvixadmin:Kalvix@2026@dc-standalone-postgres:5432/divine_cardinal
@@ -18,26 +17,6 @@ services:
       - app_internal
     ports:
       - "4001:4000"
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: '1G'
-
-  dc-standalone-frontend:
-    build: ./frontend
-    restart: always
-    env_file:
-      - ./frontend/.env.local
-    environment:
-      - NODE_ENV=production
-    depends_on:
-      - dc-standalone-backend
-    networks:
-      - app_web
-      - app_internal
-    ports:
-      - "3001:3000"
     deploy:
       resources:
         limits:
