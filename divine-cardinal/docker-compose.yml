@@ -16,23 +16,8 @@ services:
     networks:
       - app_web
       - app_internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=app_web"
-      
-      # divinecardinal specific router
-      - "traefik.http.routers.dc-standalone-backend.rule=Host(`divinecardinal.com`) && (PathPrefix(`/api/backend`) || PathPrefix(`/uploads`))"
-      - "traefik.http.routers.dc-standalone-backend.entrypoints=websecure"
-      - "traefik.http.routers.dc-standalone-backend.tls=true"
-      - "traefik.http.routers.dc-standalone-backend.tls.certresolver=httpresolver"
-      - "traefik.http.routers.dc-standalone-backend.middlewares=dc-standalone-replace"
-      
-      # shared service port
-      - "traefik.http.services.dc-standalone-backend.loadbalancer.server.port=4000"
-      
-      # middlewares
-      - "traefik.http.middlewares.dc-standalone-replace.replacepathregex.regex=^/api/backend/(.*)"
-      - "traefik.http.middlewares.dc-standalone-replace.replacepathregex.replacement=/api/$$1"
+    ports:
+      - "4001:4000"
     deploy:
       resources:
         limits:
@@ -51,19 +36,8 @@ services:
     networks:
       - app_web
       - app_internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=app_web"
-      
-      # divinecardinal specific router
-      - "traefik.http.routers.dc-standalone-frontend.rule=Host(`divinecardinal.com`)"
-      - "traefik.http.routers.dc-standalone-frontend.entrypoints=websecure"
-      - "traefik.http.routers.dc-standalone-frontend.tls=true"
-      - "traefik.http.routers.dc-standalone-frontend.tls.certresolver=httpresolver"
-      - "traefik.http.routers.dc-standalone-frontend.priority=20"
-      
-      # shared service port
-      - "traefik.http.services.dc-standalone-frontend.loadbalancer.server.port=3000"
+    ports:
+      - "3001:3000"
     deploy:
       resources:
         limits:
@@ -120,6 +94,4 @@ services:
 
 networks:
   app_internal:
-    external: true
   app_web:
-    external: true
