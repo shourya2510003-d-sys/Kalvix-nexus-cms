@@ -40,15 +40,25 @@ export class CmsController {
         resource_type: 'auto'
       };
       
-      // Auto convert images (tiff, png, bmp, etc.) to small jpg format
+      const result = await cloudinary.uploader.upload(file.path, uploadOptions);
+
+      // Automatically optimize image uploads using Cloudinary's dynamic CDN features
+      let finalUrl = result.secure_url;
       if (['.tif', '.tiff', '.bmp', '.png', '.jpeg', '.jpg', '.webp'].includes(ext)) {
-        uploadOptions.format = 'jpg';
+        // f_auto: Serves AVIF/WEBP automatically based on browser support for massive space savings
+        // q_auto:best: Automatically calculates the best compression level without quality loss
+        // e_improve: Automatically enhances colors, contrast, and brightness of poor quality images
+        finalUrl = finalUrl.replace('/image/upload/', '/image/upload/f_auto,q_auto:best,e_improve/');
       }
 
-      const result = await cloudinary.uploader.upload(file.path, uploadOptions);
       // Optionally remove local file
       fs.unlinkSync(file.path);
-      return { url: result.secure_url, filename: file.originalname, size: result.bytes || file.size, mimetype: uploadOptions.format ? 'image/jpeg' : file.mimetype };
+      return { 
+        url: finalUrl, 
+        filename: file.originalname, 
+        size: result.bytes || file.size, 
+        mimetype: file.mimetype 
+      };
     } catch (err) {
       console.error('Cloudinary upload failed:', err);
       // Fallback to local URL if Cloudinary fails
