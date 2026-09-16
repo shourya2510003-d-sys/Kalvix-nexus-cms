@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Query, Param, UseGuards, Request, UnauthorizedException, Headers } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -60,5 +60,23 @@ export class ProductsController {
     @Body('title') title?: string,
   ) {
     return this.productsService.addReview(req.user.id, productId, rating, comment, title);
+  }
+
+  @Patch('webhook/seo-update')
+  async updateSeo(
+    @Headers('x-make-api-key') apiKey: string,
+    @Body('productSlug') slug: string,
+    @Body() seoData: any,
+  ) {
+    const expectedKey = process.env.MAKE_WEBHOOK_SECRET || 'divine-cardinal-secret';
+    if (!apiKey || apiKey !== expectedKey) {
+      throw new UnauthorizedException('Invalid API Key');
+    }
+    
+    if (!slug) {
+      throw new Error('productSlug is required');
+    }
+
+    return this.productsService.updateSeo(undefined, slug, seoData);
   }
 }

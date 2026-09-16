@@ -229,4 +229,23 @@ export class ProductsService {
       },
     });
   }
+
+  // Update SEO fields via Webhook
+  async updateSeo(tenantId: string | undefined, slug: string, seoData: any) {
+    const product = await this.findOneBySlug(tenantId as any, slug);
+    if (!product) {
+      throw new NotFoundException(`Product with slug ${slug} not found`);
+    }
+
+    return this.prisma.product.update({
+      where: { id: product.id },
+      data: {
+        description: seoData.description || product.description,
+        summary: seoData.summary || product.summary,
+        keyIngredients: seoData.keyIngredients || product.keyIngredients,
+        focusKeyword: seoData.focusKeyword || product.focusKeyword,
+        seoTags: seoData.seoTags || product.seoTags,
+      },
+    });
+  }
 }
