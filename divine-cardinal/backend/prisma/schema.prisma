@@ -64,6 +64,7 @@ model User {
   lastName             String?
   role                 Role      @default(CUSTOMER)
   walletBalance        Decimal   @default(0.00) @db.Decimal(10, 2)
+  goldenCoins          Int       @default(0)
   twoFactorSecret      String?
   twoFactorExpires     DateTime?
   twoFactorLastSent    DateTime?
@@ -173,7 +174,7 @@ model Product {
   keyBenefitsText    String?  @db.Text // Key Benefits (section 9) - rich text/HTML
   imageAltText       String?            // Image Alt Text (section 17)
   internalLinksText  String?  @db.Text // Internal Links (section 15) - JSON array
-
+  ingredientBreakdown String? @db.Text // Rich text/HTML for ingredients tab
   categories   Category[]
   collections  Collection[]
   variants     ProductVariant[]

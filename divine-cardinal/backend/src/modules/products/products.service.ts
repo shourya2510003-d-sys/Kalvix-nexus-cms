@@ -237,14 +237,41 @@ export class ProductsService {
       throw new NotFoundException(`Product with slug ${slug} not found`);
     }
 
+    // Process FAQs if present
+    if (seoData.faqs && Array.isArray(seoData.faqs) && seoData.faqs.length > 0) {
+      await this.prisma.productFAQ.deleteMany({
+        where: { productId: product.id }
+      });
+      await this.prisma.productFAQ.createMany({
+        data: seoData.faqs.map((faq: any) => ({
+          productId: product.id,
+          question: faq.question || '',
+          answer: faq.answer || ''
+        }))
+      });
+    }
+
+    let keyBenefitsText = (product as any).keyBenefitsText;
+    if (seoData.keyBenefits) {
+      if (Array.isArray(seoData.keyBenefits)) {
+        keyBenefitsText = JSON.stringify(seoData.keyBenefits);
+      } else {
+        keyBenefitsText = String(seoData.keyBenefits);
+      }
+    }
+
     return this.prisma.product.update({
       where: { id: product.id },
       data: {
         description: seoData.description || product.description,
         summary: seoData.summary || product.summary,
         keyIngredients: seoData.keyIngredients || product.keyIngredients,
-        focusKeyword: seoData.focusKeyword || product.focusKeyword,
-        seoTags: seoData.seoTags || product.seoTags,
+        ingredientBreakdown: seoData.ingredientBreakdown || (product as any).ingredientBreakdown,
+        howToUse: seoData.howToUse || product.howToUse,
+        whoIsItFor: seoData.whoIsItFor || (product as any).whoIsItFor,
+        keyBenefitsText: keyBenefitsText,
+        focusKeyword: seoData.focusKeyword || (product as any).focusKeyword,
+        seoTags: seoData.seoTags || (product as any).seoTags,
       },
     });
   }

@@ -116,6 +116,7 @@ export class OrdersService {
       couponCode?: string;
       paymentMethod: PaymentMethod;
       notes?: string;
+      useGoldenCoins?: boolean;
     },
     tenantId?: string,
   ) {
@@ -167,8 +168,21 @@ export class OrdersService {
 
     // Taxes (18% GST included in basePrice, let's break it down on invoice)
     const taxAmount = (subtotal - discountAmount) * 0.18; // Breakdown indicator
-    const totalAmount = subtotal + shippingCost - discountAmount;
+    let totalAmount = subtotal + shippingCost - discountAmount;
 
+    let coinDiscount = 0;
+    let coinsToDeduct = 0;
+    
+    if (data.useGoldenCoins && (user as any).goldenCoins > 0) {
+      // 10 coins = 1 INR
+      const maxDiscountFromCoins = Math.floor((user as any).goldenCoins / 10);
+      coinDiscount = Math.min(maxDiscountFromCoins, totalAmount);
+      coinsToDeduct = coinDiscount * 10;
+      totalAmount -= coinDiscount;
+      discountAmount += coinDiscount; // Add to total discount shown
+    }
+
+    const coinsEarned = Math.floor(totalAmount); // 1 INR spent = 1 Coin earned
     // Verify inventory quantities
     for (const item of cart) {
       if (item.variant.inventoryQuantity < item.quantity) {
@@ -225,13 +239,53 @@ export class OrdersService {
         },
       });
 
-      // 4. Clear User Cart
+      // 4. Update Golden Coins
+      if (coinsToDeduct > 0 || coinsEarned > 0) {
+        await (tx as any).user.update({
+          where: { id: userId },
+          data: {
+            goldenCoins: {
+              decrement: coinsToDeduct,
+              increment: coinsEarned,
+            }
+          }
+        });
+      }
+
+      // 5. Clear User Cart
       await tx.cartItem.deleteMany({ where: { userId } });
 
       return newOrder;
     });
 
     return order;
+  }
+
+  // Process Golden Coins manually from frontend or admin panel
+  async processGoldenCoins(userId: string, usedCoins: number, earnedCoins: number, targetUserId?: string) {
+    let updateUserId = userId;
+    
+    // If an admin is targeting another user
+    if (targetUserId && targetUserId !== userId) {
+      const requester = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (!requester || requester.role !== 'ADMIN') {
+        throw new Error('Unauthorized: Only admins can process coins for other users');
+      }
+      updateUserId = targetUserId;
+    }
+
+    if (usedCoins > 0 || earnedCoins > 0) {
+      await (this.prisma as any).user.update({
+        where: { id: updateUserId },
+        data: {
+          goldenCoins: {
+            decrement: usedCoins || 0,
+            increment: earnedCoins || 0,
+          }
+        }
+      });
+    }
+    return { success: true };
   }
 
   // Get user order history

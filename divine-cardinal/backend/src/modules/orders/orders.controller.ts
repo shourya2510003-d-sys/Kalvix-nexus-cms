@@ -39,6 +39,7 @@ export class OrdersController {
     @Body('couponCode') couponCode?: string,
     @Body('paymentMethod') paymentMethod?: PaymentMethod,
     @Body('notes') notes?: string,
+    @Body('useGoldenCoins') useGoldenCoins?: boolean,
   ) {
     return this.ordersService.createOrder(
       req.user.id,
@@ -48,6 +49,7 @@ export class OrdersController {
         couponCode,
         paymentMethod: paymentMethod || PaymentMethod.COD,
         notes,
+        useGoldenCoins,
       },
       (req as any).tenantId,
     );
@@ -77,5 +79,16 @@ export class OrdersController {
     });
 
     res.end(pdfBuffer);
+  }
+
+  @Post('process-coins')
+  @UseGuards(AuthGuard('jwt'))
+  async processCoins(
+    @Request() req,
+    @Body('usedCoins') usedCoins: number,
+    @Body('earnedCoins') earnedCoins: number,
+    @Body('targetUserId') targetUserId?: string,
+  ) {
+    return this.ordersService.processGoldenCoins(req.user.id, usedCoins, earnedCoins, targetUserId);
   }
 }
