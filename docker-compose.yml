@@ -11,6 +11,7 @@ services:
     networks:
       - web
       - internal
+      - divine-cardinal_app_internal
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
@@ -217,6 +218,8 @@ services:
 networks:
   internal:
   web:
+  divine-cardinal_app_internal:
+    external: true
 
 volumes:
   meili_data:
