@@ -275,13 +275,17 @@ export class OrdersService {
     }
 
     if (usedCoins > 0 || earnedCoins > 0) {
+      const updateData: any = {};
+      if (earnedCoins > 0) {
+        updateData.increment = earnedCoins;
+      } else if (usedCoins > 0) {
+        updateData.decrement = usedCoins;
+      }
+      
       await (this.prisma as any).user.update({
         where: { id: updateUserId },
         data: {
-          goldenCoins: {
-            decrement: usedCoins || 0,
-            increment: earnedCoins || 0,
-          }
+          goldenCoins: updateData
         }
       });
     }

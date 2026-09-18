@@ -407,7 +407,8 @@ export class AdminController {
     const key = `MOCK_ORDERS_${tenantId}`;
     const setting = await this.prisma.systemSetting.findUnique({ where: { key }});
     let orders: any[] = setting ? JSON.parse(setting.value) : [];
-    const idx = orders.findIndex((o: any) => o.id === id);
+    const normalizedIdToFind = id.replace('_', '-');
+    const idx = orders.findIndex((o: any) => o.id === normalizedIdToFind || o.id === id);
     if (idx >= 0) {
        orders[idx] = { ...orders[idx], ...data };
     } else {
@@ -427,7 +428,8 @@ export class AdminController {
     const key = `MOCK_ORDERS_${tenantId}`;
     const setting = await this.prisma.systemSetting.findUnique({ where: { key }});
     let orders: any[] = setting ? JSON.parse(setting.value) : [];
-    const idx = orders.findIndex((o: any) => o.id === id);
+    const normalizedIdToFind = id.replace('_', '-');
+    const idx = orders.findIndex((o: any) => o.id === normalizedIdToFind || o.id === id);
     if (idx >= 0) {
       orders.splice(idx, 1);
       await this.prisma.systemSetting.upsert({
@@ -436,6 +438,47 @@ export class AdminController {
         create: { key, value: JSON.stringify(orders) }
       });
     }
+    return { success: true };
+  }
+
+  @Get('mock-visits')
+  async getMockVisits(@Req() req: Request) {
+    const tenantId = (req as any).tenantId || 'default';
+    const key = `MOCK_VISITS_${tenantId}`;
+    const setting = await this.prisma.systemSetting.findUnique({ where: { key }});
+    let visits: any[] = setting ? JSON.parse(setting.value) : [];
+    // Cleanup old visits (older than 24 hours)
+    const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+    visits = visits.filter((v: any) => v.timestamp > oneDayAgo);
+    return visits;
+  }
+
+  @Put('mock-visits/:id')
+  async updateMockVisit(@Param('id') id: string, @Body() data: any, @Req() req: Request) {
+    const tenantId = (req as any).tenantId || 'default';
+    const key = `MOCK_VISITS_${tenantId}`;
+    const setting = await this.prisma.systemSetting.findUnique({ where: { key }});
+    let visits: any[] = setting ? JSON.parse(setting.value) : [];
+    
+    // Ensure data has an id
+    const visitData = { ...data, id };
+    
+    const idx = visits.findIndex((v: any) => v.id === id || v.sessionId === id);
+    if (idx >= 0) {
+       visits[idx] = { ...visits[idx], ...visitData };
+    } else {
+       visits.push(visitData);
+    }
+    
+    // Cleanup old visits before saving
+    const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+    visits = visits.filter((v: any) => v.timestamp > oneDayAgo);
+    
+    await this.prisma.systemSetting.upsert({
+      where: { key },
+      update: { value: JSON.stringify(visits) },
+      create: { key, value: JSON.stringify(visits) }
+    });
     return { success: true };
   }
   
