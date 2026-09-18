@@ -4982,30 +4982,6 @@ Customers: ${customersList.length} total.`;
                               {mockProductForClient && (
                                 <div className="p-4 border border-dashed text-gray-500">Product Preview Placeholder</div>
                               )}
-                              <div className="p-4 border border-dashed text-gray-500">Homepage Preview Placeholder</div>
-                                banners={[]} 
-                                bestSellers={productsList.map((p: any) => {
-                                  const priceNum = Number(p.basePrice) || 0;
-                                  const imageUrl = p.images?.[0]?.url || p.image || 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&w=400';
-                                  return {
-                                    id: String(p.id),
-                                    sku: p.sku || String(p.id),
-                                    name: p.name || 'Unnamed Product',
-                                    slug: p.slug || String(p.id),
-                                    summary: p.description || 'Premium Ayurvedic blend crafted with pure natural extracts.',
-                                    basePrice: priceNum,
-                                    compareAtPrice: Number(p.compareAtPrice) || 0,
-                                    rating: p.rating || 4.8,
-                                    reviewCount: p.reviewCount || 0,
-                                    isBestSeller: p.isBestSeller || false,
-                                    isFeatured: p.isFeatured || false,
-                                    images: p.images?.length > 0 ? p.images : [{ url: imageUrl }],
-                                    variants: [{ id: `var-${p.id}`, title: 'Default', price: priceNum, sku: p.sku || `SKU-${p.id}` }]
-                                  };
-                                })}
-                                pageId={currentPageId} 
-                                previewLayout={homepageLayout} 
-                              />
                             </div>
                           </div>
                         )}
