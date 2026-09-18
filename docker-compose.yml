@@ -225,3 +225,45 @@ volumes:
   meili_data:
 
 
+
+  dc-admin-new:
+    build: ./divine-cardinal-admin
+    restart: always
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.dc-admin-new.rule=Host(`admin.kalvixnexus.com`)"
+      - "traefik.http.routers.dc-admin-new.entrypoints=websecure"
+      - "traefik.http.routers.dc-admin-new.tls=true"
+      - "traefik.http.routers.dc-admin-new.tls.certresolver=myresolver"
+      - "traefik.http.services.dc-admin-new.loadbalancer.server.port=80"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '512M'
+
+  dc-storefront-new:
+    build: ./divine-cardinal-storefront
+    restart: always
+    environment:
+      - NODE_ENV=production
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.dc-storefront-new.rule=Host(`v2.kalvixnexus.com`)"
+      - "traefik.http.routers.dc-storefront-new.entrypoints=websecure"
+      - "traefik.http.routers.dc-storefront-new.tls=true"
+      - "traefik.http.routers.dc-storefront-new.tls.certresolver=myresolver"
+      - "traefik.http.services.dc-storefront-new.loadbalancer.server.port=4321"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '1G'
