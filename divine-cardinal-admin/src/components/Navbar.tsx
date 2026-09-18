@@ -7,7 +7,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { useLocation } from 'react-router-dom';
 import { db, ref, push, set, onValue } from '../lib/firebase';
 import { useEffect, useState as useStateReact } from 'react';
 import { useCurrency, Currency } from '../context/CurrencyContext';
@@ -66,7 +66,8 @@ const megaMenuData: Record<string, any> = {
 };
 
 export default function Navbar() {
-  const pathname = usePathname();
+  const location = useLocation();
+  const pathname = location.pathname;
   if (pathname?.startsWith('/admin')) {
     return null;
   }

@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { Lock, Mail, Eye, EyeOff, Sparkles, User as UserIcon, ShieldAlert, ArrowLeft, KeyRound, Key } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminLoginPage() {
   const { user, login } = useAuth();
-  const router = useRouter();
+  const router = useNavigate();
   
   const [selectedRole, setSelectedRole] = useState<'admin' | 'customer' | null>('admin');
   const [loginMethod, setLoginMethod] = useState<'PASSWORD' | 'OTP'>('PASSWORD');
@@ -30,9 +30,9 @@ export default function AdminLoginPage() {
   useEffect(() => {
     if (user) {
       if (user.role === 'ADMIN') {
-        router.push('/admin/dashboard');
+        router('/admin/dashboard');
       } else {
-        router.push('/dashboard');
+        router('/dashboard');
       }
     }
   }, [user, router]);
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
         if (!res.ok) throw new Error(data.message || 'Login failed');
         
         login(data.token, data.user, rememberMe);
-        router.push('/admin/dashboard');
+        router('/admin/dashboard');
       } else {
         // Request OTP
         const res = await fetch(`${API_URL}/auth/email-otp/send`, {
@@ -93,7 +93,7 @@ export default function AdminLoginPage() {
       login(data.token, { ...data.user, requiresPasswordSetup: data.requiresPasswordSetup }, rememberMe);
       
       // We will handle requiresPasswordSetup in the admin layout
-      router.push('/admin/dashboard');
+      router('/admin/dashboard');
     } catch (err: any) {
       setError(err.message || 'Verification failed');
     } finally {

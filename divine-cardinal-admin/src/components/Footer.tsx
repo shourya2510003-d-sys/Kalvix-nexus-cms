@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { usePathname } from 'next/navigation';
+import { useLocation } from 'react-router-dom';
 import { db, ref, onValue } from '../lib/firebase';
 
 export default function Footer() {
-  const pathname = usePathname();
+  const location = useLocation();
+  const pathname = location.pathname;
   if (pathname?.startsWith('/admin')) {
     return null;
   }

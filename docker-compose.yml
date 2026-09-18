@@ -215,17 +215,6 @@ services:
           cpus: '1.0'
           memory: '1G'
 
-networks:
-  internal:
-  web:
-  divine-cardinal_app_internal:
-    external: true
-
-volumes:
-  meili_data:
-
-
-
   dc-admin-new:
     build: ./divine-cardinal-admin
     restart: always
@@ -267,3 +256,12 @@ volumes:
         limits:
           cpus: '1.0'
           memory: '1G'
+
+networks:
+  internal:
+  web:
+  divine-cardinal_app_internal:
+    external: true
+
+volumes:
+  meili_data:

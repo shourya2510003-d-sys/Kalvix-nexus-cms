@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 
 export const fetchWithTenant = async (input: RequestInfo | URL, init?: RequestInit) => {
   let tenantSlug = '';

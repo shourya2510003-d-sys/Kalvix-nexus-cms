@@ -1,14 +1,14 @@
 
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useNavigate as useRouter, useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Lock, Sparkles, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   
   const token = searchParams.get('token');
   const email = searchParams.get('email');
@@ -58,7 +58,7 @@ function ResetPasswordForm() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push('/admin/login');
+        router('/admin/login');
       }, 3000);
     } catch (err: any) {
       setError(err.message || 'Failed to reset password');
