@@ -192,7 +192,7 @@ services:
     build: ./frontend
     restart: always
     env_file:
-      - ./frontend/.env.local
+      - ./divine-cardinal/frontend/.env.local
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_ROOT_DOMAIN=kalvixnexus.com
