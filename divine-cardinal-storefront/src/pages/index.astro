@@ -33,7 +33,7 @@ try {
 <Layout title="Divine Cardinal - Unmatched SEO Storefront">
   <main>
     <div class="storefront-wrapper">
-      <StorefrontApp client:only="react" banners={layoutData.filter((l: any) => l.type === 'banner')} bestSellers={products} initialLayout={layoutData} />
+      <StorefrontApp client:load banners={layoutData.filter((l: any) => l.type === 'banner')} bestSellers={products} initialLayout={layoutData} />
     </div>
   </main>
 </Layout>
