@@ -8,13 +8,9 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://dc-backend:4000/api';
 
 let layoutData = [];
 let products = [];
-try {
-  const layoutRes = await fetch(`https://divine-cardinal-default-rtdb.firebaseio.com/layouts/page-home.json`);
-  
-  if (layoutRes.ok) {
-    const json = await layoutRes.json();
-    layoutData = Array.isArray(json) ? json : (json.layout || []);
-  }
+  // The Postgres database is empty for layouts, and the Firebase layout is incomplete.
+  // We will pass an empty layout so the frontend falls back to DEFAULT_HOMEPAGE_LAYOUT.
+  layoutData = [];
 
   // Fetch products based on IDs provided in metadata
   const bestSellersBlock = layoutData.find((l: any) => l.type === 'best_sellers' || l.metadata?.productIds);
@@ -32,9 +28,6 @@ try {
       products = allProducts.slice(0, 4);
     }
   }
-} catch (error) {
-  console.error("Failed to fetch Astro homepage data:", error);
-}
 ---
 
 <Layout title="Divine Cardinal - Unmatched SEO Storefront">
