@@ -10,7 +10,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { db, ref, push, set, onValue } from '../lib/firebase';
 import { useEffect, useState as useStateReact } from 'react';
-import { useCurrency, Currency } from '../context/CurrencyContext';
+import { useCurrency, type Currency } from '../context/CurrencyContext';
 import { Country, State, City } from 'country-state-city';
 import { optimizeCloudinaryUrl } from '../lib/cloudinary';
 
