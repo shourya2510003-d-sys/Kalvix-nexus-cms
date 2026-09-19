@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { fade } from 'astro:transitions';
-import HomeClient from '../components/HomeClient.tsx';
+import StorefrontApp from '../components/StorefrontApp.tsx';
 
 // Fetch the homepage layout from the NestJS backend
 const API_URL = import.meta.env.PUBLIC_API_URL || 'http://dc-backend:4000/api';
@@ -9,16 +9,19 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://dc-backend:4000/api';
 let layoutData = [];
 let products = [];
 try {
-  const [layoutRes, productsRes] = await Promise.all([
-    fetch(`${API_URL}/backend/cms/layout/homepage_layout`),
-    fetch(`${API_URL}/backend/products?limit=20`)
-  ]);
+  const layoutRes = await fetch(`${API_URL}/backend/cms/layout/homepage_layout`);
   
   if (layoutRes.ok) {
     const json = await layoutRes.json();
     layoutData = json.layout || [];
   }
-  
+
+  // Fetch products based on IDs provided in metadata
+  const bestSellersBlock = layoutData.find((l: any) => l.type === 'best_sellers' || l.metadata?.productIds);
+  const rawProductIds = bestSellersBlock?.metadata?.productIds || '';
+  const productIds = Array.isArray(rawProductIds) ? rawProductIds.join(',') : rawProductIds;
+
+  const productsRes = await fetch(`${API_URL}/products/bulk?ids=${productIds}`);
   if (productsRes.ok) {
     products = await productsRes.json();
   }
@@ -30,7 +33,7 @@ try {
 <Layout title="Divine Cardinal - Unmatched SEO Storefront">
   <main>
     <div class="storefront-wrapper">
-      <HomeClient client:only="react" banners={layoutData.filter(l => l.type === 'banner')} bestSellers={products} initialLayout={layoutData} />
+      <StorefrontApp client:only="react" banners={layoutData.filter((l: any) => l.type === 'banner')} bestSellers={products} initialLayout={layoutData} />
     </div>
   </main>
 </Layout>
