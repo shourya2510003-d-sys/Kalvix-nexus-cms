@@ -9,7 +9,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://dc-backend:4000/api';
 let layoutData = [];
 let products = [];
 try {
-  const layoutRes = await fetch(`${API_URL}/backend/cms/layout/homepage_layout`);
+  const layoutRes = await fetch(`${API_URL}/cms/layout/homepage_layout`);
   
   if (layoutRes.ok) {
     const json = await layoutRes.json();
