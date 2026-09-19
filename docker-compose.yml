@@ -1,9 +1,9 @@
 services:
   dc-backend:
-    build: ./divine-cardinal/backend
+    build: ./backend_api
     restart: always
     env_file:
-      - ./divine-cardinal/backend/.env
+      - ./backend_api/.env
     depends_on:
       - postgres
       - redis
