@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST='{"app/admin/dashboard/page.tsx -> mammoth":{"id":13318,"files":["static/chunks/3318.5fcb714f672f7432.js"]}}';

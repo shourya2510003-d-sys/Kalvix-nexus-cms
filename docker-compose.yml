@@ -153,30 +153,29 @@ services:
           memory: '1G'
 
 
-  dc-admin-new:
-    build: ./divine-cardinal-admin
+  dc-frontend:
+    image: kalvix-dc-frontend:latest
     restart: always
-    ports:
-      - "3002:80"
-    networks:
-      - web
-      - internal
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: '512M'
-
-  dc-storefront-new:
-    build: ./divine-cardinal-storefront
-    restart: always
-    ports:
-      - "4321:4321"
+    env_file:
+      - ./divine-cardinal/frontend/.env.local
     environment:
       - NODE_ENV=production
+    depends_on:
+      - dc-backend
     networks:
       - web
       - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.dc-frontend.rule=HostRegexp(`^.+\\.kalvixnexus\\.com$$`) || Host(`divinecardinal.com`)"
+      - "traefik.http.routers.dc-frontend.entrypoints=websecure"
+      - "traefik.http.routers.dc-frontend.tls=true"
+      - "traefik.http.routers.dc-frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.dc-frontend.tls.domains[0].main=kalvixnexus.com"
+      - "traefik.http.routers.dc-frontend.tls.domains[0].sans=*.kalvixnexus.com"
+      - "traefik.http.routers.dc-frontend.priority=10"
+      - "traefik.http.services.dc-frontend.loadbalancer.server.port=3000"
     deploy:
       resources:
         limits:

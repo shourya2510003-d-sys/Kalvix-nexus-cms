@@ -1,0 +1,13 @@
+User-Agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /api/
+Disallow: /auth/callback
+
+User-Agent: GPTBot
+Disallow: /
+
+Host: https://divinecardinal.com
+Sitemap: https://divinecardinal.com/sitemap.xml
