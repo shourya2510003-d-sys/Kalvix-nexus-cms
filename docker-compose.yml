@@ -37,40 +37,6 @@ services:
           cpus: '1.0'
           memory: '1G'
 
-  dc-frontend:
-    build: ./divine-cardinal/frontend
-    restart: always
-    env_file:
-      - ./divine-cardinal/frontend/.env.local
-    environment:
-      - NODE_ENV=production
-    depends_on:
-      - dc-backend
-    networks:
-      - web
-      - internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
-      
-      # kalvixnexus wildcard router + Custom Domains Catch-all
-      - "traefik.http.routers.dc-frontend.rule=HostRegexp(`^.+$`)"
-      - "traefik.http.routers.dc-frontend.entrypoints=websecure"
-      - "traefik.http.routers.dc-frontend.tls=true"
-      - "traefik.http.routers.dc-frontend.tls.certresolver=myresolver"
-      - "traefik.http.routers.dc-frontend.tls.domains[0].main=kalvixnexus.com"
-      - "traefik.http.routers.dc-frontend.tls.domains[0].sans=*.kalvixnexus.com"
-      - "traefik.http.routers.dc-frontend.priority=1"
-      
-
-      
-      # shared service port
-      - "traefik.http.services.dc-frontend.loadbalancer.server.port=3000"
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: '1G'
   postgres:
     image: postgres:16
     restart: always
