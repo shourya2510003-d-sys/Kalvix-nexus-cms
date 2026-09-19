@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fade } from 'astro:transitions';
+import HomeClient from '../components/HomeClient.tsx';
+
+// Fetch the homepage layout from the NestJS backend
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://dc-backend:4000/api';
+
+let layoutData = [];
+let products = [];
+try {
+  const [layoutRes, productsRes] = await Promise.all([
+    fetch(`${API_URL}/backend/cms/layout/homepage_layout`),
+    fetch(`${API_URL}/backend/products?limit=20`)
+  ]);
+  
+  if (layoutRes.ok) {
+    const json = await layoutRes.json();
+    layoutData = json.layout || [];
+  }
+  
+  if (productsRes.ok) {
+    products = await productsRes.json();
+  }
+} catch (error) {
+  console.error("Failed to fetch Astro homepage data:", error);
+}
+---
+
+<Layout title="Divine Cardinal - Unmatched SEO Storefront">
+  <main>
+    <div class="storefront-wrapper">
+      <HomeClient client:only="react" banners={layoutData.filter(l => l.type === 'banner')} bestSellers={products} initialLayout={layoutData} />
+    </div>
+  </main>
+</Layout>
