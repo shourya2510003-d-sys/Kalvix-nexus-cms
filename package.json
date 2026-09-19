@@ -1,6 +1,17 @@
 {
   "dependencies": {
     "dotenv": "^17.4.2",
-    "firebase-admin": "^13.10.0"
-  }
+    "firebase-admin": "^13.10.0",
+    "puppeteer": "^24.43.1"
+  },
+  "name": "kalvix",
+  "version": "1.0.0",
+  "main": "check_order.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
