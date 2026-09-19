@@ -21,9 +21,16 @@ try {
   const rawProductIds = bestSellersBlock?.metadata?.productIds || '';
   const productIds = Array.isArray(rawProductIds) ? rawProductIds.join(',') : rawProductIds;
 
-  const productsRes = await fetch(`${API_URL}/products/bulk?ids=${productIds}`);
+  const productsRes = await fetch(`${API_URL}/products`);
   if (productsRes.ok) {
-    products = await productsRes.json();
+    const data = await productsRes.json();
+    let allProducts = data.products || [];
+    if (productIds) {
+      const ids = productIds.split(',');
+      products = allProducts.filter((p: any) => ids.includes(p.id) || ids.includes(p.slug) || ids.includes(p.sku));
+    } else {
+      products = allProducts.slice(0, 4);
+    }
   }
 } catch (error) {
   console.error("Failed to fetch Astro homepage data:", error);
