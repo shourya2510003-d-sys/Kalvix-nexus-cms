@@ -1,15 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { usePathname } from 'next/navigation';
 import { db, ref, onValue } from '../lib/firebase';
 
 export default function Footer() {
-  const pathname = usePathname();
-  if (pathname?.startsWith('/admin')) {
-    return null;
-  }
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);

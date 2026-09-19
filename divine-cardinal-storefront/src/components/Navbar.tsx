@@ -7,7 +7,6 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
 import { db, ref, push, set, onValue } from '../lib/firebase';
 import { useEffect, useState as useStateReact } from 'react';
 import { useCurrency, type Currency } from '../context/CurrencyContext';
@@ -66,10 +65,11 @@ const megaMenuData: Record<string, any> = {
 };
 
 export default function Navbar() {
-  const pathname = usePathname();
-  if (pathname?.startsWith('/admin')) {
-    return null;
-  }
+  const [mounted, setMounted] = useStateReact(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
@@ -206,20 +206,23 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    if (pathname && !pathname.startsWith('/admin')) {
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-      const newVisitRef = push(ref(db, 'live_visits'));
-      set(newVisitRef, {
-        user: user ? `${user.firstName} ${user.lastName}` : 'Guest Session',
-        action: pathname === '/' ? 'Browsing storefront homepage' : `Viewing page ${pathname}`,
-        page: pathname,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        timestamp: Date.now(),
-        device: isMobile ? 'Mobile' : 'Desktop',
-        location: 'Delhi, IN'
-      });
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      if (pathname && !pathname.startsWith('/admin')) {
+        const isMobile = window.innerWidth < 768;
+        const newVisitRef = push(ref(db, 'live_visits'));
+        set(newVisitRef, {
+          user: user ? `${user.firstName} ${user.lastName}` : 'Guest Session',
+          action: pathname === '/' ? 'Browsing storefront homepage' : `Viewing page ${pathname}`,
+          page: pathname,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: Date.now(),
+          device: isMobile ? 'Mobile' : 'Desktop',
+          location: 'Delhi, IN'
+        });
+      }
     }
-  }, [pathname, user]);
+  }, [user]);
 
   const [isScrolled, setIsScrolled] = useState(false);
 
