@@ -156,6 +156,8 @@ services:
   dc-frontend:
     image: kalvix-dc-frontend:latest
     restart: always
+    ports:
+      - "3003:3000"
     env_file:
       - ./divine-cardinal/frontend/.env.local
     environment:
