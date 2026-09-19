@@ -10,6 +10,7 @@ const puppeteer = require('puppeteer');
     if (!response.ok()) console.log('HTTP ERROR:', response.status(), response.url());
   });
 
-  await page.goto('http://localhost:4321', { waitUntil: 'networkidle0' });
+  await page.goto('http://localhost:4321', { waitUntil: 'domcontentloaded' });
+  await new Promise(resolve => setTimeout(resolve, 5000));
   await browser.close();
 })();
