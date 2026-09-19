@@ -44,8 +44,6 @@ services:
       POSTGRES_DB: kalvixnexus
       POSTGRES_USER: kalvixadmin
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "5432:5432"
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
     networks:
