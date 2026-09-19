@@ -9,11 +9,11 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://dc-backend:4000/api';
 let layoutData = [];
 let products = [];
 try {
-  const layoutRes = await fetch(`${API_URL}/cms/layout/homepage_layout`);
+  const layoutRes = await fetch(`https://divine-cardinal-default-rtdb.firebaseio.com/layouts/page-home.json`);
   
   if (layoutRes.ok) {
     const json = await layoutRes.json();
-    layoutData = json.layout || [];
+    layoutData = Array.isArray(json) ? json : (json.layout || []);
   }
 
   // Fetch products based on IDs provided in metadata
